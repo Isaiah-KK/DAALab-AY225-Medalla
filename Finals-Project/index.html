@@ -6,6 +6,7 @@
     <title>Global EdStats - World Bank Data</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -96,8 +97,8 @@
                     <h3>Historical Trends</h3>
                     <i class="fa-solid fa-filter filter-icon"></i>
                 </div>
-                <div class="chart-placeholder">
-                    <p class="placeholder-text"><i class="fa-solid fa-chart-line"></i><br>Trend Chart Container<br><small>(Requires JS library)</small></p>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
@@ -105,15 +106,15 @@
                 <div class="chart-header">
                     <h3>Gov. Expenditure (% of GDP)</h3>
                 </div>
-                <div class="chart-placeholder">
-                     <p class="placeholder-text"><i class="fa-solid fa-chart-bar"></i><br>Bar Chart Container<br><small>(Requires JS library)</small></p>
+                <div class="chart-container">
+                     <canvas id="barChart"></canvas>
                 </div>
             </div>
 
         </div>
-
     </main>
 </div>
 
+<script src="script.js"></script>
 </body>
 </html>
