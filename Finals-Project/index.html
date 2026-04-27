@@ -62,7 +62,7 @@
                 <h2>Youth Literacy Rate (% of people ages 15-24)</h2>
                 <p class="subtitle">Comparing progression across major regions over the last 5 years.</p>
             </div>
-            <button class="btn-export">
+            <button id="exportBtn" class="btn-export">
                 <i class="fa-solid fa-download"></i> Export CSV
             </button>
         </header>
@@ -98,8 +98,8 @@
                     <h3>Historical Trends</h3>
                     <i class="fa-solid fa-filter filter-icon"></i>
                 </div>
-                <div class="chart-container">
-                    <canvas id="trendChart"></canvas>
+                <div class="chart-placeholder">
+                    <p class="placeholder-text"><i class="fa-solid fa-chart-line"></i><br>Trend Chart Container<br><small>(Requires JS library)</small></p>
                 </div>
             </div>
 
@@ -107,12 +107,13 @@
                 <div class="chart-header">
                     <h3>Gov. Expenditure (% of GDP)</h3>
                 </div>
-                <div class="chart-container">
-                     <canvas id="barChart"></canvas>
+                <div class="chart-placeholder">
+                     <p class="placeholder-text"><i class="fa-solid fa-chart-bar"></i><br>Bar Chart Container<br><small>(Requires JS library)</small></p>
                 </div>
             </div>
 
         </div>
+
     </main>
 </div>
 

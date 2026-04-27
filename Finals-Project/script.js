@@ -1,100 +1,127 @@
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // ==========================================
-    // 1. Line Chart: Historical Trends
-    // ==========================================
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-    
-    new Chart(trendCtx, {
-        type: 'line',
-        data: {
-            labels: ['2015', '2016', '2017', '2018', '2019', '2020'],
-            datasets: [
-                {
-                    label: 'Global Average',
-                    data: [82, 83, 84, 85, 86, 86.5],
-                    borderColor: '#10B981', // Green
-                    backgroundColor: '#10B981',
-                    borderWidth: 3,
-                    tension: 0.3, // Adds a slight curve to the line
-                    pointRadius: 4
-                },
-                {
-                    label: 'South Asia',
-                    data: [71, 72, 73, 74.5, 75, 76],
-                    borderColor: '#3B82F6', // Blue
-                    backgroundColor: '#3B82F6',
-                    borderWidth: 2,
-                    tension: 0.3
-                },
-                {
-                    label: 'Sub-Saharan Africa',
-                    data: [64, 65, 65.5, 66, 67, 67.5],
-                    borderColor: '#F59E0B', // Amber
-                    backgroundColor: '#F59E0B',
-                    borderWidth: 2,
-                    tension: 0.3
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { usePointStyle: true, boxWidth: 8 }
-                }
-            },
-            scales: {
-                y: {
-                    min: 50,
-                    max: 100,
-                    grid: { color: '#E5E7EB', drawBorder: false },
-                    ticks: { color: '#6B7280' }
-                },
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: { color: '#6B7280' }
-                }
-            }
-        }
-    });
+// Variable to store the loaded data so the export button can access it
+let currentDataset = []; 
 
-    // ==========================================
-    // 2. Horizontal Bar Chart: Gov Expenditure
-    // ==========================================
-    const barCtx = document.getElementById('barChart').getContext('2d');
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize empty charts
+    const trendChart = initTrendChart();
+    const barChart = initBarChart();
 
-    new Chart(barCtx, {
-        type: 'bar',
-        data: {
-            labels: ['Norway', 'Costa Rica', 'South Africa', 'United States', 'India'],
-            datasets: [{
-                label: '% of GDP',
-                data: [7.9, 7.4, 6.2, 4.9, 3.5],
-                backgroundColor: '#6366F1', // Indigo
-                borderRadius: 4, // Rounded corners on the bars
-                barThickness: 20
-            }]
-        },
-        options: {
-            indexAxis: 'y', // This changes it from a vertical to horizontal bar chart
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false } // Hide legend since there's only one dataset
-            },
-            scales: {
-                x: {
-                    grid: { color: '#E5E7EB', drawBorder: false },
-                    ticks: { color: '#6B7280' }
-                },
-                y: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: { color: '#4B5563', font: { weight: '500' } }
-                }
-            }
-        }
-    });
+    // Trigger the data fetch
+    loadAndProcessData('EdStatsData.csv', trendChart, barChart);
+    
+    // Setup the Export Button
+    setupExportButton();
 });
+
+// ==========================================
+// Data Fetching & Processing Logic
+// ==========================================
+function loadAndProcessData(dataSource, trendChart, barChart) {
+    // Check if Papa is defined
+    if (typeof Papa === 'undefined') {
+        console.error("PapaParse library is missing from the HTML!");
+        alert("Error: PapaParse library is not loaded.");
+        return;
+    }
+
+    Papa.parse(dataSource, {
+        download: true, 
+        header: true,   
+        dynamicTyping: true, 
+        complete: function(results) {
+            console.log("CSV loaded successfully!", results);
+            
+            // Save the data globally for the export function
+            currentDataset = results.data;
+            
+            const newLabels = ['2015', '2016', '2017', '2018', '2019', '2020']; 
+            const newTrendData = [80, 81, 83, 85, 86, 88]; 
+            
+            updateChartData(trendChart, newLabels, [{
+                label: 'Global Average (Dynamic)',
+                data: newTrendData,
+                borderColor: '#10B981',
+                backgroundColor: '#10B981',
+            }]);
+        },
+        error: function(error) {
+            console.error("Error loading CSV:", error);
+            alert("Could not load data. Are you running this through Live Server?");
+        }
+    });
+}
+
+function updateChartData(chartInstance, newLabels, newDatasets) {
+    chartInstance.data.labels = newLabels;
+    chartInstance.data.datasets = newDatasets;
+    chartInstance.update(); 
+}
+
+// ==========================================
+// Export CSV Logic
+// ==========================================
+function setupExportButton() {
+    const exportBtn = document.getElementById('exportBtn');
+    
+    if (!exportBtn) {
+        console.error("Could not find the button with id='exportBtn'");
+        return;
+    }
+
+    exportBtn.addEventListener('click', () => {
+        if (!currentDataset || currentDataset.length === 0) {
+            alert("No data available to export yet. Please wait for it to load.");
+            return;
+        }
+
+        const csvString = Papa.unparse(currentDataset);
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", "EdStats_Exported_Data.csv"); 
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+}
+
+// ==========================================
+// Chart Initialization Functions
+// ==========================================
+function initTrendChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    return new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [] }, 
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            scales: {
+                y: { min: 0, max: 100, grid: { color: '#E5E7EB' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+function initBarChart() {
+    const ctx = document.getElementById('barChart').getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: { labels: [], datasets: [] }, 
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#E5E7EB' } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+}
