@@ -1,0 +1,16 @@
+country,region,expenditure,enrollment,literacy,tier
+Norway,Europe,7.9,82,99,A
+Costa Rica,Latin America,7.4,55,98,A
+South Africa,Africa,6.2,23,80,B
+United States,North America,4.9,88,99,A
+India,South Asia,3.5,29,74,C
+Chad,Africa,2.9,3,22,D
+Vietnam,East Asia,4.1,28,95,A
+Japan,East Asia,3.6,63,99,A
+Mali,Africa,3.1,5,31,D
+Brazil,Latin America,6.0,51,93,A
+Finland,Europe,7.1,87,99,A
+Niger,Africa,3.8,4,35,D
+Pakistan,South Asia,2.8,9,58,C
+Mexico,Latin America,4.3,42,95,A
+Egypt,Middle East,3.9,35,71,C
