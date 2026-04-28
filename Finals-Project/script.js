@@ -22,11 +22,32 @@ function renderLiteracyCharts() {
         data: {
             labels: ['2015', '2016', '2017', '2018', '2019', '2020'],
             datasets: [{
-                label: 'Global Average', data: [82, 83, 84, 85, 86, 86.5],
-                borderColor: '#10B981', tension: 0.3
+                label: 'Global Average', 
+                data: [82, 83, 84, 85, 86, 86.5],
+                borderColor: '#00f0ff', // Neon Cyan
+                backgroundColor: 'rgba(0, 240, 255, 0.1)',
+                fill: true,
+                tension: 0.3
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            // ---> SCALES GO RIGHT HERE <---
+            scales: {
+                y: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    ticks: { color: '#94a3b8' } 
+                },
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#f8fafc' } } // Makes the legend text white
+            }
+        }
     });
 
     const barCtx = document.getElementById('barChart').getContext('2d');
@@ -34,9 +55,32 @@ function renderLiteracyCharts() {
         type: 'bar',
         data: {
             labels: ['Japan', 'Finland', 'Canada', 'South Korea'],
-            datasets: [{ label: 'Literacy Rate', data: [99, 99, 99, 98], backgroundColor: '#3B82F6' }]
+            datasets: [{ 
+                label: 'Literacy Rate', 
+                data: [99, 99, 99, 98], 
+                backgroundColor: '#8a2be2', // Neon Purple
+                borderRadius: 4
+            }]
         },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+        options: { 
+            indexAxis: 'y', 
+            responsive: true, 
+            maintainAspectRatio: false,
+            // ---> SCALES GO RIGHT HERE TOO <---
+            scales: {
+                y: { 
+                    grid: { display: false }, // Hide horizontal lines for bar chart
+                    ticks: { color: '#94a3b8' } 
+                },
+                x: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8' }
+                }
+            },
+            plugins: {
+                legend: { display: false } // Hide legend for single-bar chart
+            }
+        }
     });
 }
 
