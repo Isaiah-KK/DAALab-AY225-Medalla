@@ -47,40 +47,14 @@ function loadDataset() {
         skipEmptyLines: true,
         complete: function(results) {
             console.log("Raw CSV Loaded:", results.data.length, "rows");
-
-            // 1. Check if we are reading the raw Kaggle scrape or the clean CSV
-            const headers = results.meta.fields || [];
-            const isKaggleScrape = headers.includes('sc-gMacIw');
             
             let countryMap = {};
 
             results.data.forEach(row => {
-                let country, indicator, value;
-                
-                // Extract values based on the file format
-                if (isKaggleScrape) {
-                    country = row['sc-gMacIw'];
-                    indicator = row['sc-gMacIw 3'];
-                    value = parseFloat(row['sc-gMacIw 5']);
-                } else {
-                    country = row['country'] || row['Country Name'];
-                    indicator = row['indicator'] || row['Indicator Name'];
-                    value = parseFloat(row['expenditure'] !== undefined ? row['expenditure'] : row['Value']);
-                    
-                    // If it's already the clean wide-format CSV, map it directly
-                    if (row['expenditure'] !== undefined && row['literacy'] !== undefined) {
-                        if (!country) return;
-                        countryMap[country] = {
-                            country: country,
-                            region: row['region'] || getRegion(country),
-                            expenditure: parseFloat(row['expenditure']),
-                            enrollment: parseFloat(row['enrollment']),
-                            literacy: parseFloat(row['literacy']),
-                            tier: row['tier']
-                        };
-                        return;
-                    }
-                }
+                const country = row.country;
+                const indicator = row.indicator;
+                const value = parseFloat(row.value);
+                const year = parseInt(row.year) || 0;
                 
                 if (!country || !indicator || isNaN(value)) return;
                 
@@ -91,37 +65,46 @@ function loadDataset() {
                         region: getRegion(country),
                         expenditure: null,
                         enrollment: null,
-                        literacy: null
+                        literacy: null,
+                        // Track the latest year to avoid old data overwriting new data
+                        _yearExp: 0, _yearEnr: 0, _yearLit: 0 
                     };
                 }
                 
-                // 2. Map World Bank 'Long-Format' Indicators into specific columns
+                // 2. Map Indicators to columns, keeping only the most recent year
                 let indLower = indicator.toLowerCase();
                 
                 if (indLower.includes('expenditure') && indLower.includes('% of gdp')) {
-                    countryMap[country].expenditure = value;
+                    if (year >= countryMap[country]._yearExp) {
+                        countryMap[country].expenditure = value;
+                        countryMap[country]._yearExp = year;
+                    }
                 }
-                else if (indLower.includes('enrolment ratio') || indLower.includes('enrolment rate')) {
-                    countryMap[country].enrollment = value;
+                else if (indLower.includes('enrolment') || indLower.includes('enrollment')) {
+                    if (year >= countryMap[country]._yearEnr) {
+                        countryMap[country].enrollment = value;
+                        countryMap[country]._yearEnr = year;
+                    }
                 }
-                else if (indLower.includes('literacy rate')) {
-                    countryMap[country].literacy = value;
+                else if (indLower.includes('literacy')) {
+                    if (year >= countryMap[country]._yearLit) {
+                        countryMap[country].literacy = value;
+                        countryMap[country]._yearLit = year;
+                    }
                 }
             });
             
-            // 3. Convert Map to Array and provide fallback values for sparse Kaggle data
+            // 3. Convert Map to Array and provide fallback values for sparse data
             window.DS = Object.values(countryMap).map(c => {
                 // Fill missing metrics so the Math Engine doesn't crash on NaN
                 let lit = c.literacy !== null ? c.literacy : (Math.floor(Math.random() * 40) + 50); // 50-90%
                 let exp = c.expenditure !== null ? c.expenditure : (Math.random() * 5 + 2); // 2-7%
                 let enr = c.enrollment !== null ? c.enrollment : (Math.floor(Math.random() * 50) + 20); // 20-70%
                 
-                let tier = c.tier || 'D';
-                if (!c.tier) {
-                    if (lit >= 90) tier = 'A';
-                    else if (lit >= 75) tier = 'B';
-                    else if (lit >= 50) tier = 'C';
-                }
+                let tier = 'D';
+                if (lit >= 90) tier = 'A';
+                else if (lit >= 75) tier = 'B';
+                else if (lit >= 50) tier = 'C';
                 
                 return {
                     country: c.country,
